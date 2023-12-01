@@ -1,5 +1,6 @@
 #include "Headers/Screen.h"
 #include "Headers/ImageOperations.h"
+#include "Headers/CLAHE.h"
 
 Screen* Screen::s_Instance = nullptr;
 
@@ -114,6 +115,9 @@ void Screen::Draw()
 		if (ass2currentOperation == 0) //Histogram Eq.
 		{
 			outImage = HistogramEqualization(&img1);
+
+			//CLAHE clahe(&img1, 8, 8);
+			//outImage = *clahe.image;
 			hasResult = true;
 		}
 		else if (ass2currentOperation == 1) //Histogram Matching

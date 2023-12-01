@@ -1,8 +1,13 @@
+#define _CRT_SECURE_NO_DEPRECATE
 #include "Headers/ppmLoader.h"
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
 #include <iterator>
+
+
+
+
 
 ppmLoader* ppmLoader::s_Instance = nullptr;
 
