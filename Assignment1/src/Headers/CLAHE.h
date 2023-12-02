@@ -1,6 +1,7 @@
 #pragma once
 #include "Image.h"
 #include <vector>
+#include "Histogram_.h"
 
 inline unsigned char* Approach(Image * img, int i, int j) {
 	int index = i*(img->GetWidth()*3) + j * 3;
@@ -16,6 +17,7 @@ struct ImageBlock {
 	int startJ{};
 
 	Image block{};
+	int* Sk{};
 
 	ImageBlock(Image* img, int w, int h, int stI, int stJ) : image(img), width(w), height(h), startI(stI), startJ(stJ), block("", 3, 3, w, h, 255) {
 		block.CalcTotalPixels();
@@ -30,6 +32,7 @@ struct ImageBlock {
 				blockValue[2] = imageValue[2];
 			}
 		}
+		Sk = new int[INTENSITYLEVEL]();
 	}
 	ImageBlock& operator=(const ImageBlock& rhs) {
 		image = rhs.image;
@@ -38,12 +41,18 @@ struct ImageBlock {
 		startI = rhs.startI;
 		startJ = rhs.startJ;
 		block = rhs.block;
+		Sk = new int[INTENSITYLEVEL]();
+		for (int i = 0; i < INTENSITYLEVEL;++i) {
+			Sk[i] = rhs.Sk[i];
+		}
 		return *this;
 	}
 	ImageBlock(const ImageBlock& block) {
 		*this = block;
 	}
-
+	~ImageBlock() {
+		delete[] Sk;
+	}
 	void Reassign(Image* img) {
 		for (int i = 0; i < height; ++i) {
 			for (int j = 0; j < width; ++j) {
@@ -55,6 +64,10 @@ struct ImageBlock {
 				imageValue[2] = blockValue[2];
 			}
 		}
+	}
+	unsigned char* GetCenter() {
+		unsigned char* imageValue = Approach(image, startI + height/2, startJ + height/2);
+		return imageValue;
 	}
 };
 
