@@ -40,7 +40,8 @@ CLAHE::CLAHE(Image* img, int widthBlock, int HeightBlock) :image(img) {
 	HN = HeightBlock;
 	if (image->GetWidth() % WN != 0 || image->GetHeight() % HN != 0) {
 		//error
-		std::cout << "Error: Block" << std::endl;
+		std::cout << "Error: Image can't divide by "<< WN <<", " << HN << std::endl;
+		return;
 	}
 	int BlockWidth{ image->GetWidth() / widthBlock };
 	int BlockHeight{ image->GetHeight() / HeightBlock };
@@ -58,26 +59,26 @@ CLAHE::CLAHE(Image* img, int widthBlock, int HeightBlock) :image(img) {
 	for (auto& b : blocks) {
 		b.block.CalcHistogram();
 		int* hist = b.block.GetHistogram();
-		int limit = b.block.pixelCount / (INTENSITYLEVEL) * 3;
+		float Threshold = 2;
+		int limit = b.block.pixelCount / (INTENSITYLEVEL)*Threshold;
 		Image temp;
 		temp = b.block;
+		for (int i = 0; i < temp.pixelCount; ++ i ) {
+			int grey = (temp.image[i * 3] + temp.image[i * 3 + 1] + temp.image[i * 3 + 2])/3;
+			temp.image[i * 3] = grey;
+			temp.image[i * 3 + 1] = grey;
+			temp.image[i * 3 + 2] = grey;
+		}
 		for (int j = 0; j < INTENSITYLEVEL; j++) {
 			int diff = hist[j] - limit;
 			char newValue{};
 			for (int index = 0; diff > 0 && index < temp.pixelCount; index++)
 			{
-				if (b.block.image[index * 3] == j) {
-					temp.image[index * 3] = (newValue* (INTENSITYLEVEL/10 -1)) % INTENSITYLEVEL;
-					++newValue;
-					diff -= 1;
-				}
-				if (b.block.image[index * 3 + 1] == j) {
-					temp.image[index * 3 + 1] = (newValue * (INTENSITYLEVEL / 10 - 1)) % INTENSITYLEVEL;
-					++newValue;
-					diff -= 1;
-				}
-				if (b.block.image[index * 3 + 2] == j) {
-					temp.image[index * 3 + 2] = (newValue * (INTENSITYLEVEL / 10 - 1)) % INTENSITYLEVEL;
+				if (temp.image[index * 3] == j) {
+					int val = (newValue * (INTENSITYLEVEL / 10 - 1)) % INTENSITYLEVEL;
+					temp.image[index * 3] = val;
+					temp.image[index * 3 + 1] = val;
+					temp.image[index * 3 + 2] = val;
 					++newValue;
 					diff -= 1;
 				}
