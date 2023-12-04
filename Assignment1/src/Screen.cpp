@@ -1,5 +1,7 @@
 #include "Headers/Screen.h"
 #include "Headers/ImageOperations.h"
+#include "Headers/GaussianPyramid.h"
+#include "Headers/WhiteBalance.h"
 #include "Headers/CLAHE.h"
 
 Screen* Screen::s_Instance = nullptr;
@@ -22,12 +24,20 @@ void Screen::Init()
 	ass2operations[3] = "Sobel edge detection";
 	ass2operations[4] = "Unsharp-masking";
 
+	pyramidoperations[0] = "Original";
+	pyramidoperations[1] = "WhiteBalance";
+	pyramidoperations[2] = "Gamma";
+	pyramidoperations[3] = "CLAHE";
+	pyramidoperations[4] = "Unsharp";
+	pyramidoperations[5] = "Histogram";
+	pyramidoperations[6] = "Fusion";
+
 	//user input filename
-	file1 = new char[256]{ "images/cameraman.ppm" };
-	file2 = new char[256]{ "images/mandril_gray.ppm"};
+	file1 = new char[256]{ "images/underwater2_P3.ppm" };
+	file2 = new char[256]{ "images/cameraman.ppm"};
 	resFile1 = new char[256]{ 0 };
 
-	img1 = ppmLoader::GetInstance()->LoadPPM("res/images/cameraman.ppm");
+	img1 = ppmLoader::GetInstance()->LoadPPM("res/images/underwater2_P3.ppm");
 	tex1.Init(&img1);
 	plane.Init();
 
@@ -46,10 +56,25 @@ void Screen::Init()
 
 	shader->UnBind();
 
+	operateImg = false;
+	ass2operateImg = false;
+
+	img1_position[0] = -130.0f;
+	img1_position[1] = 0.0f;
+	img1_size = 935.0f;
 	//test filters
+	//img2 = *WhiteBalance(&img1);
+	//img3 = ImageTransform(&img2, 5, 2.1, 0.85);
+	//img3;
+
+	//img1 = UnsharpMasking(&img2, 20, 5);
+	//img2 = HistogramEqualization(&img1);
+
+	//outImage = ImageAdditionWeight(&img3, 0.7f, &img2, 0.3f);
+
 	//outImage = ApplyFilter(&img1, SobelFilter(5, 1.0f));
 	//outImage = ApplyFilter(&img1, GaussianFilter(3, 1.5f));
-	outImage = UnsharpMasking(&img1, 10.0, 15);
+	//outImage = UnsharpMasking(&img1, 10.0, 15);
 	tex1.Clean();
 	tex1.Init(&outImage);
 	tex1.Bind();
@@ -115,9 +140,6 @@ void Screen::Draw()
 		if (ass2currentOperation == 0) //Histogram Eq.
 		{
 			outImage = HistogramEqualization(&img1);
-
-			//CLAHE clahe(&img1, 8, 8);
-			//outImage = *clahe.image;
 			hasResult = true;
 		}
 		else if (ass2currentOperation == 1) //Histogram Matching
@@ -141,6 +163,88 @@ void Screen::Draw()
 			outImage = UnsharpMasking(&img1, sigma, kernelSize);
 			hasResult = true;
 		}
+	}
+	else if (PyramidImg)
+	{
+		img1 = ppmLoader::GetInstance()->LoadPPM("res/" + std::string(file1));
+
+		if (pyramidcurrentOperation == 0) //Original
+		{
+			//img1 = ppmLoader::GetInstance()->LoadPPM("res/images/underwater2_P3.ppm");
+			outImage = img1;
+			hasResult = true;
+		}
+		if (pyramidcurrentOperation == 1) //WhiteBalance
+		{
+			outImage = *WhiteBalance(&img1);
+			hasResult = true;
+		}
+		if (pyramidcurrentOperation == 2) //Gramma Correct
+		{
+			img2 = *WhiteBalance(&img1);
+
+			outImage = ImageTransform(&img2, 5, 2.1, 0.85);
+
+			hasResult = true;
+		}
+		if (pyramidcurrentOperation == 3) //CLAHE
+		{
+			img2 = *WhiteBalance(&img1);
+
+			img3 = ImageTransform(&img2, 5, 2.1, 0.85);
+			CLAHE clahe(&img3, 2, 2);
+			outImage = *clahe.image;
+
+			hasResult = true;
+		}
+		if (pyramidcurrentOperation == 4) //UnsharpMasking
+		{
+			img2 = *WhiteBalance(&img1);
+
+			outImage = UnsharpMasking(&img2, 20, 5);
+
+			hasResult = true;
+		}
+		if (pyramidcurrentOperation == 5) //HistogramEqualization
+		{
+			img2 = *WhiteBalance(&img1);
+
+			img3 = UnsharpMasking(&img2, 20, 5);
+			outImage = HistogramEqualization(&img1);
+
+			hasResult = true;
+		}
+		if (pyramidcurrentOperation == 6) //Fusion
+		{
+			img2 = *WhiteBalance(&img1);
+			img3 = ImageTransform(&img2, 5, 2.1, 0.85);
+			CLAHE clahe(&img3, 2, 2);
+			img4 = *clahe.image;
+
+			img1 = UnsharpMasking(&img2, 20, 5);
+			img2 = HistogramEqualization(&img1);
+
+			outImage = ImageAdditionWeight(&img2, 0.9f, &img4, 0.7f);
+			//outImage = ImageFusion(&img2, 0.3f, &img3, 0.3f);
+			//outImage = UnsharpMasking(&outImage, 10, 10);
+			hasResult = true;
+		}
+
+		//if (pyramidcurrentOperation == 1) //Gaussian
+		//{
+		//	outImage = GaussianPyramid(&outImage);
+		//	hasResult = true;
+		//}
+		//if (pyramidcurrentOperation == 2) //Lap
+		//{
+		//	outImage = LaplacianPyramid(&outImage);
+		//	hasResult = true;
+		//}
+		//if (pyramidcurrentOperation == 3) //Test
+		//{
+		//	outImage = Test(&img1);
+		//	hasResult = true;
+		//}
 	}
 
 	if (displayResult)
@@ -233,6 +337,18 @@ void Screen::DrawUI()
 		
 		//second operate button
 		ass2operateImg = ImGui::Button("Operate(Assignment2)");
+	}
+
+	if (ImGui::CollapsingHeader("Image Fusion Pyramid")) 
+	{
+		ImGui::Spacing();
+		ImGui::Text("List of avaliable image operations");
+		ImGui::Combo("Pyramid Operation", &pyramidcurrentOperation, pyramidoperations, IM_ARRAYSIZE(pyramidoperations), PYRAMID_OPERATIONS);
+		ImGui::Spacing();
+		ImGui::Text("Import image(s) example: images/<filename>.ppm\nor /results/<filename>.ppm): ");
+		ImGui::InputText("Image #1", file1, 256);
+		//Operate button
+		PyramidImg = ImGui::Button("Operate(Pyramid)");
 	}
 
 	//Display result image

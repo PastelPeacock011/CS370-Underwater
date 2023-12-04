@@ -152,6 +152,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\CLAHE.cpp" />
+    <ClCompile Include="src\GaussianPyramid.cpp" />
     <ClCompile Include="src\Histogram_.cpp" />
     <ClCompile Include="src\ImageOperations.cpp" />
     <ClCompile Include="src\Pixel.cpp" />
@@ -179,6 +180,7 @@
   <ItemGroup>
     <ClInclude Include="src\Headers\CLAHE.h" />
     <ClInclude Include="src\Headers\Filters.h" />
+    <ClInclude Include="src\Headers\GaussianPyramid.h" />
     <ClInclude Include="src\Headers\Histogram_.h" />
     <ClInclude Include="src\Headers\Image.h" />
     <ClInclude Include="src\Headers\ImageOperations.h" />

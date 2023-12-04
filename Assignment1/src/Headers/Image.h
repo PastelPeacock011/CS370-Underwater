@@ -154,7 +154,7 @@ public:
 		return;
 	}
 
-	bool GetRGB(int index, RGB* color)
+	bool GetRGB(int index, RGB* color) const
 	{
 		if (index >= pixelCount || index < 0)
 		{
@@ -183,7 +183,7 @@ public:
 		return;
 	}
 
-	void SetPixel(int index, RGB color)
+	void SetPixel(int index, RGB color) 
 	{
 		if (!(index < 0 || index >= pixelCount))
 		{
@@ -194,9 +194,40 @@ public:
 		return;
 	}
 
+	bool GetPixel(int x, int y, RGB* color) const
+	{
+		int index = (x * 3) + (3 * y * (GetWidth()-1));
+		if (index >= totalPixels || index < 0)
+		{
+			color->R = 0;
+			color->G = 0;
+			color->B = 0;
+			return false;
+		}
+
+		color->R = (int)image[index];
+		color->G = (int)image[index + 1];
+		color->B = (int)image[index + 2];
+
+		return true;
+	}
+
+	void SetPixel(int x, int y, RGB color) 
+	{
+		int index = (x * 3) + (3 * y * (GetWidth() - 1));
+		if (index >= 0 && index < totalPixels)
+		{
+			image[index] = color.R;
+			image[index + 1] = color.G;
+			image[index + 2] = color.B;
+		}
+		return;
+	}
+
 	void CalcHistogram()
 	{
-		delete[] Histogram; Histogram = nullptr;
+		delete[] Histogram;
+		Histogram = nullptr;
 		Histogram = new int[256]{ 0 };
 
 		int tmpGreyScale = 0;

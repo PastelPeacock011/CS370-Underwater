@@ -24,7 +24,10 @@ Image HistogramEqualization(Image* im, int* getSk)
 		if (im->GetRGB(i, tmpColor))
 		{
 			tmpGreyScale = (int)std::round((tmpColor->R + tmpColor->G + tmpColor->B) / 3.0f);
-			mappedImage.push_back(tmpGreyScale);
+			//mappedImage.push_back(tmpGreyScale);
+			mappedImage.push_back(tmpColor->R);
+			mappedImage.push_back(tmpColor->G);
+			mappedImage.push_back(tmpColor->B);
 		}
 		else
 			break;
@@ -60,9 +63,9 @@ Image HistogramEqualization(Image* im, int* getSk)
 	//Insert new pixels
 	for (int index = 0; index < im->pixelCount; index++)
 	{ 
-		pixelArr[index*3] = (unsigned char)Sk[mappedImage[index]];
-		pixelArr[index*3 + 1] = (unsigned char)Sk[mappedImage[index]];
-		pixelArr[index*3 + 2] = (unsigned char)Sk[mappedImage[index]];
+		pixelArr[index*3] = (unsigned char)Sk[mappedImage[index * 3]];
+		pixelArr[index*3 + 1] = (unsigned char)Sk[mappedImage[index * 3 + 1]];
+		pixelArr[index*3 + 2] = (unsigned char)Sk[mappedImage[index * 3 + 2]];
 	}
 
 	result.image = pixelArr;

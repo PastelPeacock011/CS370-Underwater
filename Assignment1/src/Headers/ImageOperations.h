@@ -21,3 +21,6 @@ unsigned char PowerTransform(const unsigned char u, float intensity, float gamma
 
 //TODO: Log Transform
 unsigned char LogTransform(const unsigned char inputR, float intensity);
+
+Image ImageAdditionWeight(Image* img1, float weight1, Image* img2, float weight2);
+unsigned char AdditionWithWeight(const unsigned char u1, float weight1, const unsigned char u2, float weight2);

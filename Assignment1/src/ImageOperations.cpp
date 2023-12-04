@@ -190,3 +190,27 @@ unsigned char Negative(const unsigned char u1, const unsigned char u2)
 
 	return res;
 }
+
+Image ImageAdditionWeight(Image* img1, float weight1, Image* img2, float weight2)
+{
+	Image im;
+	im = *img1;
+
+	for (int i = 0; i < img1->totalPixels; i++)
+		im.image[i] = AdditionWithWeight(img1->image[i], weight1, img2->image[i], weight2);
+
+	return im;
+}
+
+unsigned char AdditionWithWeight(const unsigned char u1, float weight1, const unsigned char u2, float weight2)
+{
+	unsigned char res = 0;
+	int tmp = (float)u1 * weight1 + (float)u2 * weight2;
+
+	if (tmp > 255)
+		res = 255;
+	else
+		res = tmp;
+
+	return res;
+}

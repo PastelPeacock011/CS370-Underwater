@@ -12,6 +12,8 @@
 
 //assignment 2 operations
 #define ASS2_OPERATIONS 5
+
+#define PYRAMID_OPERATIONS 7
 //window size
 #define WIDTH	1280
 #define HEIGHT	980
@@ -38,7 +40,9 @@ private:
 
 	Image img1;
 	Image img2;
-	//Image img3;
+	Image img3;
+	Image img4;
+
 	Image outImage;
 
 	Plane plane;
@@ -51,12 +55,15 @@ private:
 	//Options
 	const char* operations[TOTAL_OPERATIONS] = { nullptr };
 	const char* ass2operations[ASS2_OPERATIONS] = { nullptr };
+	const char* pyramidoperations[PYRAMID_OPERATIONS] = { nullptr };
 
 	int currentOperation = 0;
 	int ass2currentOperation = 0;
+	int pyramidcurrentOperation = 0;
 
 	bool operateImg = false;
 	bool ass2operateImg = false;
+	bool PyramidImg = false;
 
 	bool displayResult = false;
 	bool hasResult = false;
